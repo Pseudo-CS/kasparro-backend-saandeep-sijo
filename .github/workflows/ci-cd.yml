@@ -58,6 +58,14 @@ jobs:
     - name: Run tests with coverage
       env:
         DATABASE_URL: postgresql://etl_user:etl_password@localhost:5432/etl_db
+        API_KEY_SOURCE_1: test_api_key_1
+        API_KEY_SOURCE_2: test_api_key_2
+        API_URL_SOURCE_1: https://api.coinpaprika.com/v1/tickers
+        API_URL_SOURCE_2: https://api.coingecko.com/api/v3/coins/markets
+        RSS_FEED_URL: https://cointelegraph.com/rss
+        CSV_SOURCE_PATH: ./data/sample_data.csv
+        ENVIRONMENT: test
+        LOG_LEVEL: INFO
       run: |
         pytest tests/ -v --cov=. --cov-report=xml --cov-report=term
     
