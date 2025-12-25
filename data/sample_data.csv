@@ -1,0 +1,11 @@
+id,title,description,value,category,timestamp
+btc-bitcoin,Bitcoin,Leading cryptocurrency by market cap,45000.50,cryptocurrency,2024-01-15T10:30:00Z
+eth-ethereum,Ethereum,Smart contract platform,2500.75,cryptocurrency,2024-01-16T14:20:00Z
+usdt-tether,Tether,Stablecoin pegged to USD,1.00,stablecoin,2024-01-17T09:15:00Z
+bnb-binance-coin,Binance Coin,Binance exchange token,320.40,exchange-token,2024-01-18T16:45:00Z
+sol-solana,Solana,High-performance blockchain,95.25,cryptocurrency,2024-01-19T11:00:00Z
+xrp-ripple,XRP,Digital payment protocol,0.55,cryptocurrency,2024-01-20T13:30:00Z
+usdc-usd-coin,USD Coin,USD-backed stablecoin,1.00,stablecoin,2024-01-21T10:00:00Z
+ada-cardano,Cardano,Proof-of-stake blockchain,0.48,cryptocurrency,2024-01-22T15:20:00Z
+avax-avalanche,Avalanche,Smart contracts platform,38.90,cryptocurrency,2024-01-23T12:10:00Z
+doge-dogecoin,Dogecoin,Popular memecoin,0.085,memecoin,2024-01-24T14:00:00Z
