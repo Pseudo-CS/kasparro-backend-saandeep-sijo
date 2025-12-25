@@ -3,6 +3,7 @@ import pytest
 from datetime import datetime
 
 from services.checkpoint_service import CheckpointService
+from services.etl_utils import utc_now
 from core.models import ETLCheckpoint, ETLRunHistory
 
 

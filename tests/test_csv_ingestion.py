@@ -1,20 +1,20 @@
 """Tests for CSV ingestion service."""
 import pytest
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import tempfile
 import os
 
 from ingestion.csv_ingestion import CSVIngestionService
 from services.checkpoint_service import CheckpointService
+from services.etl_utils import utc_now
 from core.models import RawCSVData, NormalizedData
 
 
 def test_csv_ingestion_basic(db_session):
     """Test basic CSV ingestion."""
     # Create temporary CSV file with future timestamps to avoid checkpoint issues
-    from datetime import datetime, timedelta
-    future_date = (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    future_date = (utc_now() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
     
     csv_data = f"""id,title,description,value,category,timestamp
 1,Test Product,Test Description,99.99,electronics,{future_date}
@@ -43,10 +43,9 @@ def test_csv_ingestion_basic(db_session):
 def test_csv_ingestion_incremental(db_session):
     """Test incremental CSV ingestion."""
     # Create CSV with future timestamps
-    from datetime import datetime, timedelta
-    future_date1 = (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    future_date2 = (datetime.utcnow() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    future_date3 = (datetime.utcnow() + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    future_date1 = (utc_now() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    future_date2 = (utc_now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    future_date3 = (utc_now() + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
     
     csv_data = f"""id,title,description,value,category,timestamp
 1,Product 1,Description 1,99.99,electronics,{future_date1}
@@ -103,8 +102,7 @@ def test_csv_ingestion_validation_failure(db_session):
 
 def test_csv_ingestion_idempotent(db_session):
     """Test that CSV ingestion is idempotent."""
-    from datetime import datetime, timedelta
-    future_date = (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    future_date = (utc_now() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
     
     csv_data = f"""id,title,description,value,category,timestamp
 1,Test Product,Test Description,99.99,electronics,{future_date}

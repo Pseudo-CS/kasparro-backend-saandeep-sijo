@@ -38,6 +38,11 @@ class CSVRecordSchema(BaseModel):
     category: Optional[str] = None
     timestamp: Optional[datetime] = None
     
+    @validator('id', pre=True)
+    def coerce_id_to_string(cls, v):
+        """Convert numeric IDs to strings."""
+        return str(v) if v is not None else v
+    
     @validator('value')
     def validate_value(cls, v):
         if v is not None and v < 0:

@@ -2,7 +2,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from datetime import datetime
+from datetime import datetime, timedelta
 import tempfile
 import pandas as pd
 
@@ -11,6 +11,7 @@ from core.models import SchemaDriftLog, ETLCheckpoint, ETLRunHistory, Normalized
 from services.schema_drift_service import SchemaDriftDetector
 from services.failure_injection_service import FailureInjector, FailureInjectionException
 from services.checkpoint_service import CheckpointService
+from services.etl_utils import utc_now
 from ingestion.csv_ingestion import CSVIngestionService
 
 
@@ -190,14 +191,16 @@ class TestFailureInjection:
     
     def test_csv_ingestion_recovery_after_failure(self, test_db):
         """Test P2.2: CSV ingestion recovers after failure."""
-        # Create test CSV with string IDs (not integers)
+        # Create test CSV with string IDs (not integers) and future timestamps
+        future_base = utc_now() + timedelta(days=1)
+        timestamps = [(future_base + timedelta(hours=i)).strftime("%Y-%m-%dT%H:%M:%SZ") for i in range(5)]
         csv_data = pd.DataFrame({
             "id": ["A1", "A2", "A3", "A4", "A5"],
             "title": ["A", "B", "C", "D", "E"],
             "description": ["Desc A", "Desc B", "Desc C", "Desc D", "Desc E"],
             "value": [1.0, 2.0, 3.0, 4.0, 5.0],
             "category": ["cat1", "cat1", "cat2", "cat2", "cat3"],
-            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"]
+            "timestamp": timestamps
         })
         
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
@@ -268,13 +271,15 @@ class TestEndToEndP2:
     def test_drift_detection_during_failure_recovery(self, test_db):
         """Test that schema drift is detected even during failure recovery."""
         # Create CSV with schema drift (missing 'description' field)
+        future_base = utc_now() + timedelta(days=1)
+        timestamps = [(future_base + timedelta(hours=i)).strftime("%Y-%m-%dT%H:%M:%SZ") for i in range(3)]
         csv_data = pd.DataFrame({
             "id": ["1", "2", "3"],
             "title": ["A", "B", "C"],
             # "description" field missing
             "value": [1.0, 2.0, 3.0],
             "category": ["cat1", "cat1", "cat2"],
-            "timestamp": ["2024-01-01", "2024-01-02", "2024-01-03"]
+            "timestamp": timestamps
         })
         
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
