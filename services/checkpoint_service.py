@@ -5,7 +5,7 @@ from datetime import datetime
 import logging
 
 from core.models import ETLCheckpoint, ETLRunHistory
-from services.etl_utils import generate_run_id, utc_now
+from services.etl_utils import generate_run_id, utc_now, ensure_timezone_aware
 
 logger = logging.getLogger(__name__)
 
@@ -146,8 +146,10 @@ class CheckpointService:
         
         if run_history:
             run_history.completed_at = utc_now()
+            # Ensure started_at is timezone-aware (SQLite loses timezone info)
+            started_at = ensure_timezone_aware(run_history.started_at)
             run_history.duration_seconds = (
-                run_history.completed_at - run_history.started_at
+                run_history.completed_at - started_at
             ).total_seconds()
             run_history.status = status
             run_history.records_processed = records_processed
@@ -171,16 +173,17 @@ class CheckpointService:
     def get_last_successful_timestamp(self, source_type: str) -> Optional[datetime]:
         """
         Get the last successful processing timestamp for incremental loading.
+        Ensures timezone-awareness for SQLite compatibility.
         
         Args:
             source_type: Type of data source
             
         Returns:
-            Last successful timestamp or None
+            Last successful timestamp (timezone-aware) or None
         """
         checkpoint = self.get_checkpoint(source_type)
-        if checkpoint:
-            return checkpoint.last_processed_timestamp
+        if checkpoint and checkpoint.last_processed_timestamp:
+            return ensure_timezone_aware(checkpoint.last_processed_timestamp)
         return None
     
     def should_resume(self, source_type: str) -> bool:

@@ -18,6 +18,24 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def ensure_timezone_aware(dt: Optional[datetime]) -> Optional[datetime]:
+    """
+    Ensure datetime is timezone-aware (assumes UTC if naive).
+    Useful for handling SQLite datetime fields which lose timezone info.
+    
+    Args:
+        dt: Datetime that may be naive or aware
+        
+    Returns:
+        Timezone-aware datetime in UTC or None
+    """
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def generate_source_id(source_type: str, data: Dict[str, Any]) -> str:
     """
     Generate a unique source ID for deduplication.
