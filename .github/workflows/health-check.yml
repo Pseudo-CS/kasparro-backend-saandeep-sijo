@@ -17,33 +17,33 @@ jobs:
     
     - name: Start services
       run: |
-        docker-compose up -d
+        docker compose up -d
         sleep 30  # Wait for services to start
     
     - name: Check service health
       run: |
         # Check if containers are running
-        docker-compose ps
+        docker compose ps
         
         # Check ETL service health
-        docker-compose exec -T etl_service curl -f http://localhost:8000/health || exit 1
+        docker compose exec -T etl_service curl -f http://localhost:8000/health || exit 1
         
         # Check database connection
-        docker-compose exec -T etl_postgres pg_isready -U etl_user || exit 1
+        docker compose exec -T etl_postgres pg_isready -U etl_user || exit 1
         
         echo "✅ All health checks passed"
     
     - name: Run smoke tests
       run: |
         # Test API endpoints
-        docker-compose exec -T etl_service curl -f http://localhost:8000/data?limit=5
-        docker-compose exec -T etl_service curl -f http://localhost:8000/stats
-        docker-compose exec -T etl_service curl -f http://localhost:8000/observability/metrics/json
+        docker compose exec -T etl_service curl -f http://localhost:8000/data?limit=5
+        docker compose exec -T etl_service curl -f http://localhost:8000/stats
+        docker compose exec -T etl_service curl -f http://localhost:8000/observability/metrics/json
     
     - name: Cleanup
       if: always()
       run: |
-        docker-compose down -v
+        docker compose down -v
     
     - name: Notify on failure
       if: failure()
