@@ -127,9 +127,10 @@ def test_resume_on_failure(db_session):
 
 def test_incremental_loading(db_session):
     """Test incremental loading timestamp tracking."""
+    from datetime import timezone
     checkpoint_service = CheckpointService(db_session)
     
-    timestamp = datetime(2024, 1, 15, 10, 30, 0)
+    timestamp = datetime(2024, 1, 15, 10, 30, 0, tzinfo=timezone.utc)
     
     checkpoint_service.update_checkpoint(
         source_type="test_source",
