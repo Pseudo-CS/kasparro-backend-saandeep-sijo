@@ -1,11 +1,21 @@
 """Utilities for ETL services."""
 import hashlib
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def utc_now() -> datetime:
+    """
+    Get current UTC time as timezone-aware datetime.
+    
+    Returns:
+        Current UTC datetime with timezone info
+    """
+    return datetime.now(timezone.utc)
 
 
 def generate_source_id(source_type: str, data: Dict[str, Any]) -> str:
@@ -37,7 +47,7 @@ def generate_source_id(source_type: str, data: Dict[str, Any]) -> str:
 
 def generate_run_id() -> str:
     """Generate a unique run ID."""
-    return f"run_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+    return f"run_{utc_now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
 
 class RateLimiter:
@@ -70,23 +80,33 @@ class RateLimiter:
 def safe_parse_datetime(value: Any) -> Optional[datetime]:
     """
     Safely parse various datetime formats.
+    Returns timezone-aware datetime in UTC.
     
     Args:
         value: Value to parse
         
     Returns:
-        Parsed datetime or None
+        Parsed datetime (timezone-aware UTC) or None
     """
     if value is None:
         return None
     
     if isinstance(value, datetime):
+        # If naive, assume UTC
+        if value.tzinfo is None:
+            from datetime import timezone
+            return value.replace(tzinfo=timezone.utc)
         return value
     
     if isinstance(value, str):
         from dateutil import parser
+        from datetime import timezone
         try:
-            return parser.parse(value)
+            dt = parser.parse(value)
+            # If parsed datetime is naive, assume UTC
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt
         except Exception as e:
             logger.warning(f"Failed to parse datetime '{value}': {e}")
             return None

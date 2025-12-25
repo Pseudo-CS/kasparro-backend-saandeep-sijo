@@ -8,7 +8,7 @@ import asyncio
 
 from core.models import RawAPIData, NormalizedData
 from schemas.data_schemas import APIRecordSchema, NormalizedDataSchema, SourceType
-from services.etl_utils import generate_source_id, safe_parse_datetime, safe_float, RateLimiter
+from services.etl_utils import generate_source_id, safe_parse_datetime, safe_float, utc_now, RateLimiter
 from services.checkpoint_service import CheckpointService
 from services.schema_drift_service import SchemaDriftDetector
 from services.failure_injection_service import FailureInjector

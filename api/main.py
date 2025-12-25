@@ -11,6 +11,7 @@ import logging
 from core.database import get_db_session, test_connection
 from core.config import settings
 from core.models import NormalizedData, ETLCheckpoint, ETLRunHistory
+from services.etl_utils import utc_now
 from schemas.data_schemas import (
     DataResponse,
     DataResponseMetadata,
@@ -191,7 +192,7 @@ async def health_check(db: Session = Depends(get_db_session)):
         database_connected=db_connected,
         etl_last_run=etl_last_run,
         etl_status=etl_status,
-        timestamp=datetime.utcnow()
+        timestamp=utc_now()
     )
 
 

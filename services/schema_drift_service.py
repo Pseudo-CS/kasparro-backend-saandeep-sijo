@@ -6,6 +6,7 @@ from difflib import SequenceMatcher
 from sqlalchemy.orm import Session
 from core.models import SchemaDriftLog
 from core.database import get_db
+from services.etl_utils import utc_now
 
 logger = logging.getLogger(__name__)
 
@@ -217,7 +218,7 @@ class SchemaDriftDetector:
                 extra_fields=drift_result["extra_fields"],
                 type_mismatches=[str(m) for m in drift_result["type_mismatches"]],
                 fuzzy_suggestions=[str(m) for m in drift_result["fuzzy_matches"]],
-                detected_at=datetime.utcnow()
+                detected_at=utc_now()
             )
             self.db.add(drift_log)
             self.db.commit()

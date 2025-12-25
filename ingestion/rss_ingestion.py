@@ -7,7 +7,7 @@ import logging
 
 from core.models import RawRSSData, NormalizedData
 from schemas.data_schemas import RSSRecordSchema, NormalizedDataSchema, SourceType
-from services.etl_utils import generate_source_id, safe_parse_datetime
+from services.etl_utils import generate_source_id, safe_parse_datetime, utc_now
 from services.checkpoint_service import CheckpointService
 from services.schema_drift_service import SchemaDriftDetector
 from services.failure_injection_service import FailureInjector

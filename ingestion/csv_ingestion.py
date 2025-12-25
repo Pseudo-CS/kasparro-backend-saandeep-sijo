@@ -7,7 +7,7 @@ import logging
 
 from core.models import RawCSVData, NormalizedData
 from schemas.data_schemas import CSVRecordSchema, NormalizedDataSchema, SourceType
-from services.etl_utils import generate_source_id, safe_parse_datetime, safe_float
+from services.etl_utils import generate_source_id, safe_parse_datetime, safe_float, utc_now
 from services.checkpoint_service import CheckpointService
 from services.schema_drift_service import SchemaDriftDetector
 from services.failure_injection_service import FailureInjector
@@ -256,7 +256,7 @@ class CSVIngestionService:
             existing.tags = normalized.tags
             existing.source_timestamp = normalized.source_timestamp
             existing.extra_metadata = normalized.extra_metadata
-            existing.updated_at = datetime.utcnow()
+            existing.updated_at = utc_now()
             return False
         else:
             # Insert new record

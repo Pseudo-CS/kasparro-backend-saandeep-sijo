@@ -13,6 +13,7 @@ from prometheus_client import (
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from core.models import ETLRunHistory, ETLCheckpoint, NormalizedData, SchemaDriftLog
+from services.etl_utils import utc_now
 from core.database import get_db
 
 logger = logging.getLogger(__name__)
@@ -101,7 +102,7 @@ class StructuredLogger:
     ):
         """Log a structured JSON message."""
         log_entry = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": utc_now().isoformat(),
             "level": level.upper(),
             "event": event,
             **kwargs
@@ -197,7 +198,7 @@ class MetricsCollector:
     def collect_etl_metrics(self) -> Dict[str, Any]:
         """Collect ETL metrics from database."""
         metrics = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": utc_now().isoformat(),
             "runs": {},
             "records": {},
             "schema_drift": {},

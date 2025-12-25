@@ -5,7 +5,7 @@ from datetime import datetime
 import logging
 
 from core.models import ETLCheckpoint, ETLRunHistory
-from services.etl_utils import generate_run_id
+from services.etl_utils import generate_run_id, utc_now
 
 logger = logging.getLogger(__name__)
 
@@ -77,10 +77,10 @@ class CheckpointService:
         
         # Update success/failure timestamps
         if status == "success":
-            checkpoint.last_success_at = datetime.utcnow()
+            checkpoint.last_success_at = utc_now()
             checkpoint.error_message = None
         elif status == "failure":
-            checkpoint.last_failure_at = datetime.utcnow()
+            checkpoint.last_failure_at = utc_now()
             checkpoint.error_message = error_message
         
         self.db.commit()
@@ -145,7 +145,7 @@ class CheckpointService:
         ).first()
         
         if run_history:
-            run_history.completed_at = datetime.utcnow()
+            run_history.completed_at = utc_now()
             run_history.duration_seconds = (
                 run_history.completed_at - run_history.started_at
             ).total_seconds()
