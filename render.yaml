@@ -1,0 +1,48 @@
+services:
+  # Web Service (API)
+  - type: web
+    name: kasparro-etl-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    region: oregon
+    plan: free
+    branch: main
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kasparro-db
+          property: connectionString
+      - key: API_KEY_SOURCE_1
+        sync: false
+      - key: API_KEY_SOURCE_2
+        sync: false
+      - key: API_URL_SOURCE_1
+        value: https://api.coinpaprika.com/v1/tickers
+      - key: API_URL_SOURCE_2
+        value: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false
+      - key: RSS_FEED_URL
+        value: https://cointelegraph.com/rss
+      - key: CSV_SOURCE_PATH
+        value: /app/data/sample_data.csv
+      - key: ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ETL_RATE_LIMIT_CALLS
+        value: 100
+      - key: ETL_RATE_LIMIT_PERIOD
+        value: 60
+      - key: ETL_SCHEDULE_ENABLED
+        value: true
+      - key: ETL_SCHEDULE_INTERVAL
+        value: 21600
+
+# Database
+databases:
+  - name: kasparro-db
+    databaseName: etl_db
+    user: etl_user
+    region: oregon
+    plan: free
