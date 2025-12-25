@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     """Application settings with validation."""
     
     # Database Configuration
-    database_url: str = Field(alias="DATABASE_URL")
+    database_url: str = Field(default="sqlite:///./test.db", alias="DATABASE_URL")
     db_host: str = Field(default="localhost", alias="DB_HOST")
     db_port: int = Field(default=5432, alias="DB_PORT")
     db_name: str = Field(default="etl_db", alias="DB_NAME")
@@ -16,13 +16,13 @@ class Settings(BaseSettings):
     db_password: str = Field(default="postgres", alias="DB_PASSWORD")
     
     # API Keys (securely loaded from environment)
-    api_key_source_1: str = Field(alias="API_KEY_SOURCE_1")
+    api_key_source_1: str = Field(default="", alias="API_KEY_SOURCE_1")
     api_key_source_2: Optional[str] = Field(default=None, alias="API_KEY_SOURCE_2")
     
     # API URLs
-    api_url_source_1: str = Field(alias="API_URL_SOURCE_1")
+    api_url_source_1: str = Field(default="https://api.coinpaprika.com/v1/tickers", alias="API_URL_SOURCE_1")
     api_url_source_2: Optional[str] = Field(default=None, alias="API_URL_SOURCE_2")
-    rss_feed_url: str = Field(alias="RSS_FEED_URL")
+    rss_feed_url: str = Field(default="https://cointelegraph.com/rss", alias="RSS_FEED_URL")
     
     # CSV Configuration
     csv_source_path: str = Field(default="./data/sample_data.csv", alias="CSV_SOURCE_PATH")
