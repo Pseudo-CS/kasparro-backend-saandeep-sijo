@@ -7,10 +7,7 @@ from core.models import NormalizedData
 from core.database import get_db_session
 
 
-client = TestClient(app)
-
-
-def test_root_endpoint():
+def test_root_endpoint(client):
     """Test root endpoint."""
     response = client.get("/")
     assert response.status_code == 200
@@ -20,7 +17,7 @@ def test_root_endpoint():
     assert "status" in data
 
 
-def test_health_endpoint():
+def test_health_endpoint(client):
     """Test health check endpoint."""
     response = client.get("/health")
     assert response.status_code == 200
@@ -30,7 +27,7 @@ def test_health_endpoint():
     assert "timestamp" in data
 
 
-def test_data_endpoint_empty():
+def test_data_endpoint_empty(client):
     """Test data endpoint with no data."""
     response = client.get("/data")
     assert response.status_code == 200
@@ -46,7 +43,7 @@ def test_data_endpoint_empty():
     assert "pagination" in metadata
 
 
-def test_data_endpoint_pagination():
+def test_data_endpoint_pagination(client):
     """Test data endpoint pagination."""
     response = client.get("/data?page=1&page_size=10")
     assert response.status_code == 200
@@ -59,7 +56,7 @@ def test_data_endpoint_pagination():
     assert "total_pages" in pagination
 
 
-def test_data_endpoint_filtering():
+def test_data_endpoint_filtering(client):
     """Test data endpoint with filters."""
     response = client.get("/data?source_type=csv&category=electronics")
     assert response.status_code == 200
@@ -71,7 +68,7 @@ def test_data_endpoint_filtering():
         assert filters_applied.get("category") == "electronics"
 
 
-def test_data_endpoint_search():
+def test_data_endpoint_search(client):
     """Test data endpoint with search."""
     response = client.get("/data?search=test")
     assert response.status_code == 200
@@ -81,13 +78,13 @@ def test_data_endpoint_search():
     assert isinstance(data["data"], list)
 
 
-def test_data_endpoint_invalid_page():
+def test_data_endpoint_invalid_page(client):
     """Test data endpoint with invalid page number."""
     response = client.get("/data?page=0")
     assert response.status_code == 422  # Validation error
 
 
-def test_stats_endpoint():
+def test_stats_endpoint(client):
     """Test stats endpoint."""
     response = client.get("/stats")
     assert response.status_code == 200
@@ -104,7 +101,7 @@ def test_stats_endpoint():
     assert "failed_sources" in summary
 
 
-def test_stats_endpoint_with_limit():
+def test_stats_endpoint_with_limit(client):
     """Test stats endpoint with custom limit."""
     response = client.get("/stats?limit=5")
     assert response.status_code == 200
@@ -113,7 +110,7 @@ def test_stats_endpoint_with_limit():
     assert len(data["recent_runs"]) <= 5
 
 
-def test_api_latency_measurement():
+def test_api_latency_measurement(client):
     """Test that API latency is measured."""
     response = client.get("/data")
     assert response.status_code == 200
@@ -124,7 +121,7 @@ def test_api_latency_measurement():
     assert latency_ms >= 0
 
 
-def test_request_id_generation():
+def test_request_id_generation(client):
     """Test that each request gets a unique request ID."""
     response1 = client.get("/data")
     response2 = client.get("/data")
