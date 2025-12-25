@@ -26,27 +26,33 @@ def override_get_db():
         db.close()
 
 
+# Override the dependency before any tests run
+app.dependency_overrides[get_db_session] = override_get_db
+
+
+@pytest.fixture(scope="function", autouse=True)
+def setup_test_database():
+    """Create tables before each test and drop after."""
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+
+
 @pytest.fixture(scope="function")
 def db_session():
     """Create a fresh database session for each test."""
-    Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
     try:
         yield db
     finally:
         db.close()
-        Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")
-def client(db_session):
+def client():
     """Create test client with database dependency override."""
-    app.dependency_overrides[get_db_session] = override_get_db
-    Base.metadata.create_all(bind=engine)
     with TestClient(app) as test_client:
         yield test_client
-    Base.metadata.drop_all(bind=engine)
-    app.dependency_overrides.clear()
 
 
 @pytest.fixture(scope="module")
