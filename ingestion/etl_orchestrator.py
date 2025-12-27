@@ -132,15 +132,17 @@ async def run_etl_pipeline():
     # Log summary
     logger.info("ETL Pipeline Results:")
     for source, result in results.items():
-        if result and "error" not in result:
+        if result is None:
+            logger.error(f"  {source}: FAILED - No result returned")
+        elif "error" in result:
+            logger.error(f"  {source}: FAILED - {result.get('error', 'Unknown error')}")
+        else:
             logger.info(
                 f"  {source}: processed={result.get('processed', 0)}, "
                 f"inserted={result.get('inserted', 0)}, "
                 f"updated={result.get('updated', 0)}, "
                 f"failed={result.get('failed', 0)}"
             )
-        else:
-            logger.error(f"  {source}: FAILED - {result.get('error', 'Unknown error')}")
     
     return results
 

@@ -124,14 +124,23 @@ class CSVIngestionService:
             logger.error(f"CSV ingestion failed: {e}")
             stats["errors"].append(str(e))
             
+            # Rollback transaction
+            self.db.rollback()
+            
             # Mark run as failed
-            self.checkpoint_service.complete_run(
-                run_id,
-                self.source_type,
-                "failure",
-                error_message=str(e)
-            )
-            raise
+            try:
+                self.checkpoint_service.complete_run(
+                    run_id,
+                    self.source_type,
+                    "failure",
+                    error_message=str(e)
+                )
+            except Exception as checkpoint_error:
+                logger.error(f"Failed to save checkpoint: {checkpoint_error}")
+            
+            # Return error stats instead of raising
+            stats["error"] = str(e)
+            return stats
         
         return stats
     
@@ -201,6 +210,7 @@ class CSVIngestionService:
                 
             except Exception as e:
                 logger.warning(f"Failed to process CSV record: {e}")
+                self.db.rollback()  # Rollback failed record transaction
                 stats["failed"] += 1
                 stats["errors"].append(str(e))
         
