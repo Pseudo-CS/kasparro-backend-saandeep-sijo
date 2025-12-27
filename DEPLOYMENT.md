@@ -2,6 +2,53 @@
 
 This guide provides instructions for deploying the ETL Backend Service to various cloud providers.
 
+## 🚀 Quick Start: Render Deployment (Automatic)
+
+### Prerequisites
+- Code pushed to GitHub
+- Render account connected to GitHub repository
+
+### Deployment Steps
+
+1. **Push your changes:**
+   ```bash
+   git add .
+   git commit -m "Add identity unification feature"
+   git push origin main
+   ```
+
+2. **Automatic deployment happens:**
+   - Render detects push and builds Docker image
+   - Runs `docker-entrypoint.sh` which includes `migrate_db.py`
+   - Service starts with new features enabled
+
+3. **Verify deployment:**
+   ```bash
+   # Health check
+   curl https://your-service.onrender.com/health
+   
+   # Check canonical_id in data
+   curl https://your-service.onrender.com/api/data?limit=5
+   ```
+
+### Manual Migration (If Needed)
+
+If automatic migration fails, run manually via Render Shell:
+
+```bash
+# In Render Dashboard → Shell
+python run_migration_manual.py
+```
+
+### Post-Deployment Checklist
+
+✅ Health endpoint returns `database_connected: true`  
+✅ API responses include `canonical_id` field  
+✅ No "canonical_id does not exist" errors in logs  
+✅ ETL pipeline completes successfully  
+
+---
+
 ## AWS Deployment
 
 ### Prerequisites

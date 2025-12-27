@@ -35,6 +35,10 @@ init_db()
 print('Database initialized!')
 "
 
+# Run database migrations
+echo "Running database migrations..."
+python migrate_db.py || echo "Migration failed or already applied, continuing..."
+
 # Run initial ETL ingestion
 echo "Running initial ETL ingestion..."
 python -c "

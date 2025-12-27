@@ -410,6 +410,50 @@ Available via `/stats` endpoint:
 
 ## 🚢 Deployment
 
+### Render Deployment (Automatic)
+
+This project is configured for automatic deployment on Render:
+
+1. **Push to GitHub:**
+   ```bash
+   git add .
+   git commit -m "Add identity unification feature"
+   git push origin main
+   ```
+
+2. **Automatic deployment:**
+   - Render detects the push and automatically builds/deploys
+   - Database migrations run automatically on startup via `docker-entrypoint.sh`
+   - Service restarts with new code
+
+3. **Monitor deployment:**
+   - Check Render dashboard for build status
+   - View logs: `Settings → Logs` in Render dashboard
+   - Verify health: `https://your-service.onrender.com/health`
+
+### Manual Migration (If Needed)
+
+If you need to run migrations manually on Render:
+
+**Option 1: Via Render Shell**
+```bash
+# In Render dashboard: Shell → Connect
+python migrate_db.py
+```
+
+**Option 2: Standalone Script**
+```bash
+# In Render shell
+python run_migration_manual.py
+```
+
+**Option 3: Local with Render DB**
+```bash
+# Set DATABASE_URL to Render database
+export DATABASE_URL="postgresql://..."
+python migrate_db.py
+```
+
 ### Cloud Deployment (Example with AWS)
 
 1. **Build and push Docker image:**
@@ -423,6 +467,10 @@ Available via `/stats` endpoint:
    - Configure RDS PostgreSQL instance
    - Set up EventBridge/CloudWatch for scheduled ETL runs
    - Configure Application Load Balancer for API
+   - **Important:** Run migrations before first deployment:
+     ```bash
+     python migrate_db.py
+     ```
 
 3. **Scheduled ETL:**
    - AWS EventBridge rule (cron: `0 */6 * * *`)
