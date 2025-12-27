@@ -176,7 +176,7 @@ This document summarizes the implementation of P2.3 (Rate Limiting + Backoff), P
 
 4. **Dockerfile Improvements**
    - Added `curl` for health checks
-   - Multi-stage build ready (can optimize further)
+   - Multi-stage build (builder + runtime stages for optimized image size)
    - Minimal base image (python:3.11-slim)
    - Proper dependency caching
 

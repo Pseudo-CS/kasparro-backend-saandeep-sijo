@@ -82,6 +82,7 @@ async def get_data(
     page_size: int = Query(50, ge=1, le=1000, description="Items per page"),
     source_type: Optional[str] = Query(None, description="Filter by source type"),
     category: Optional[str] = Query(None, description="Filter by category"),
+    canonical_id: Optional[str] = Query(None, description="Filter by canonical identity"),
     search: Optional[str] = Query(None, description="Search in title and description"),
     db: Session = Depends(get_db_session)
 ):
@@ -92,6 +93,7 @@ async def get_data(
     - **page_size**: Number of items per page (max 1000)
     - **source_type**: Filter by source type (csv, api1, api2, rss)
     - **category**: Filter by category
+    - **canonical_id**: Filter by canonical identity (unified entity ID across sources)
     - **search**: Search term for title and description
     """
     start_time = time.time()
@@ -109,6 +111,10 @@ async def get_data(
     if category:
         query = query.filter(NormalizedData.category == category)
         filters_applied["category"] = category
+    
+    if canonical_id:
+        query = query.filter(NormalizedData.canonical_id == canonical_id)
+        filters_applied["canonical_id"] = canonical_id
     
     if search:
         search_filter = f"%{search}%"
@@ -151,6 +157,68 @@ async def get_data(
     logger.info(
         f"GET /data - request_id={request_id}, "
         f"page={page}, records={len(data)}, latency={latency_ms:.2f}ms"
+    )
+    
+    return response
+
+
+@app.get(
+    "/entities/{canonical_id}",
+    response_model=DataResponse,
+    tags=["Data"],
+    summary="Get all source records for a unified entity"
+)
+async def get_entity_sources(
+    canonical_id: str,
+    db: Session = Depends(get_db_session)
+):
+    """
+    Get all source records for a canonical entity.
+    
+    Returns all records from different data sources that refer to the same
+    real-world entity (e.g., Bitcoin from CSV, API, and RSS sources).
+    
+    - **canonical_id**: The canonical identity (e.g., "bitcoin", "ethereum")
+    """
+    start_time = time.time()
+    request_id = str(uuid.uuid4())
+    
+    # Query all records with this canonical ID
+    records = db.query(NormalizedData).filter(
+        NormalizedData.canonical_id == canonical_id
+    ).order_by(NormalizedData.source_type, desc(NormalizedData.created_at)).all()
+    
+    if not records:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No records found for canonical_id: {canonical_id}"
+        )
+    
+    # Convert to schemas
+    data = [NormalizedDataSchema.model_validate(record) for record in records]
+    
+    # Calculate latency
+    latency_ms = (time.time() - start_time) * 1000
+    
+    # Build response
+    response = DataResponse(
+        data=data,
+        metadata=DataResponseMetadata(
+            request_id=request_id,
+            api_latency_ms=round(latency_ms, 2),
+            pagination=PaginationMetadata(
+                page=1,
+                page_size=len(data),
+                total_records=len(data),
+                total_pages=1
+            ),
+            filters_applied={"canonical_id": canonical_id}
+        )
+    )
+    
+    logger.info(
+        f"GET /entities/{canonical_id} - request_id={request_id}, "
+        f"sources={len(data)}, latency={latency_ms:.2f}ms"
     )
     
     return response
@@ -226,7 +294,7 @@ async def get_stats(
                 last_success_at=checkpoint.last_success_at,
                 last_failure_at=checkpoint.last_failure_at,
                 status=checkpoint.status,
-                metadata=checkpoint.metadata
+                extra_metadata=checkpoint.extra_metadata
             )
         )
     

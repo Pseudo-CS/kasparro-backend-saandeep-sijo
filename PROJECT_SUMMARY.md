@@ -22,7 +22,7 @@ This is a **production-grade ETL (Extract, Transform, Load) backend service** bu
 | ├─ GET /data | ✅ | With pagination, filtering, and metadata |
 | └─ GET /health | ✅ | DB connectivity and ETL status |
 | **Dockerized System** | ✅ | Complete Docker setup |
-| ├─ Dockerfile | ✅ | Multi-stage with health checks |
+| ├─ Dockerfile | ✅ | Multi-stage build with health checks |
 | ├─ docker-compose.yml | ✅ | PostgreSQL + ETL service |
 | ├─ Makefile | ✅ | `make up`, `make down` commands |
 | └─ README | ✅ | Comprehensive documentation |

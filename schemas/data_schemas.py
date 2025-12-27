@@ -75,6 +75,7 @@ class NormalizedDataSchema(BaseModel):
     """Unified schema for normalized data."""
     source_type: SourceType
     source_id: str
+    canonical_id: Optional[str] = Field(None, description="Canonical identity across sources")
     title: str
     description: Optional[str] = None
     value: Optional[float] = None

@@ -57,6 +57,9 @@ class NormalizedData(Base):
     source_type = Column(String, index=True)  # csv, api1, api2, rss
     source_id = Column(String, unique=True, index=True)
     
+    # Identity unification field
+    canonical_id = Column(String, index=True, nullable=True)  # Unified identity across sources
+    
     # Common fields across all sources
     title = Column(String)
     description = Column(Text, nullable=True)
@@ -76,6 +79,7 @@ class NormalizedData(Base):
         Index('idx_normalized_source_type', 'source_type'),
         Index('idx_normalized_created_at', 'created_at'),
         Index('idx_normalized_category', 'category'),
+        Index('idx_normalized_canonical_id', 'canonical_id'),
     )
 
 
