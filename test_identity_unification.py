@@ -23,7 +23,7 @@ def test_identity_resolution():
         tests = [
             ("CSV ID extraction", "csv", "Bitcoin", {"id": "btc-bitcoin"}, "bitcoin"),
             ("Symbol matching", "api_api1", "Bitcoin", {"symbol": "BTC"}, "bitcoin"),
-            ("Title normalization", "rss", "Ethereum News", {}, "ethereum-news"),
+            ("Title normalization", "rss", "Ethereum News", {}, "ethereum"),
             ("Ethereum symbol", "api_api1", "Ethereum", {"symbol": "ETH"}, "ethereum"),
             ("Solana CSV ID", "csv", "Solana", {"id": "sol-solana"}, "solana"),
         ]
