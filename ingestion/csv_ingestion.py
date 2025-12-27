@@ -138,7 +138,12 @@ class CSVIngestionService:
             except Exception as checkpoint_error:
                 logger.error(f"Failed to save checkpoint: {checkpoint_error}")
             
-            # Return error stats instead of raising
+            # Re-raise FailureInjectionException for testing
+            from services.failure_injection_service import FailureInjectionException
+            if isinstance(e, FailureInjectionException):
+                raise
+            
+            # Return error stats for other exceptions
             stats["error"] = str(e)
             return stats
         
@@ -208,7 +213,15 @@ class CSVIngestionService:
                 
                 stats["processed"] += 1
                 
+                # Commit after each record for failure recovery
+                self.db.commit()
+                
             except Exception as e:
+                # Re-raise FailureInjectionException for testing
+                from services.failure_injection_service import FailureInjectionException
+                if isinstance(e, FailureInjectionException):
+                    raise
+                    
                 logger.warning(f"Failed to process CSV record: {e}")
                 self.db.rollback()  # Rollback failed record transaction
                 stats["failed"] += 1
