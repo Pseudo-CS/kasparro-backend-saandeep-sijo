@@ -91,13 +91,38 @@ Implemented comprehensive identity unification system to resolve canonical ident
 
 ## Deployment Steps
 
-### Step 1: Run Database Migration
-```bash
-alembic upgrade head
-```
-This adds the `canonical_id` column to `normalized_data` table.
+### Quick Setup (Recommended)
 
-### Step 2: Backfill Existing Data
+Run the automated setup and test script:
+
+```bash
+python setup_and_test.py
+```
+
+This will:
+1. Apply all database migrations
+2. Run comprehensive tests
+3. Verify production readiness
+
+### Manual Setup
+
+#### Step 1: Run Database Migration
+```bash
+python migrate_db.py
+```
+This adds the `canonical_id` column to `normalized_data` table and creates all necessary indexes.
+
+#### Step 2: Run Tests
+```bash
+python test_identity_unification.py
+```
+This runs 4 comprehensive tests:
+- Identity resolution logic
+- Database schema verification
+- Ingestion with canonical ID assignment
+- Identity-based queries
+
+#### Step 3: Backfill Existing Data (if database has data)
 ```bash
 python backfill_canonical_ids.py
 ```
