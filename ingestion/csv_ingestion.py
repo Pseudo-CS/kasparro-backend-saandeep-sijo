@@ -277,16 +277,7 @@ class CSVIngestionService:
             new_record = NormalizedData(
                 source_type=normalized.source_type.value,
                 source_id=normalized.source_id,
-                canonical_id=normalized.canonical
-            existing.source_timestamp = normalized.source_timestamp
-            existing.extra_metadata = normalized.extra_metadata
-            existing.updated_at = utc_now()
-            return False
-        else:
-            # Insert new record
-            new_record = NormalizedData(
-                source_type=normalized.source_type.value,
-                source_id=normalized.source_id,
+                canonical_id=normalized.canonical_id,
                 title=normalized.title,
                 description=normalized.description,
                 value=normalized.value,
